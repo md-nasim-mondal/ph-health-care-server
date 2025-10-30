@@ -5,6 +5,7 @@ import sendResponse from "../../shared/sendResponse";
 
 const createPatient = catchAsync(async (req: Request, res: Response) => {
   const result = await UserService.createPatient(req);
+
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -15,6 +16,7 @@ const createPatient = catchAsync(async (req: Request, res: Response) => {
 
 const createAdmin = catchAsync(async (req: Request, res: Response) => {
   const result = await UserService.createAdmin(req);
+
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -25,6 +27,7 @@ const createAdmin = catchAsync(async (req: Request, res: Response) => {
 
 const createDoctor = catchAsync(async (req: Request, res: Response) => {
   const result = await UserService.createDoctor(req);
+
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -34,9 +37,16 @@ const createDoctor = catchAsync(async (req: Request, res: Response) => {
 });
 
 const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
-  const {page, limit} = req.query;
+  const { page, limit, searchTerm, sortBy, sortOrder } = req.query;
 
-  const result = await UserService.getAllFromDB({page: Number(page), limit: Number(limit)});
+  const result = await UserService.getAllFromDB({
+    page: Number(page),
+    limit: Number(limit),
+    searchTerm: String(searchTerm || ""),
+    sortBy: String(sortBy || ""),
+    sortOrder: String(sortOrder || ""),
+  });
+
   sendResponse(res, {
     statusCode: 201,
     success: true,
@@ -49,5 +59,5 @@ export const UserController = {
   createPatient,
   createAdmin,
   createDoctor,
-  getAllFromDB
+  getAllFromDB,
 };
