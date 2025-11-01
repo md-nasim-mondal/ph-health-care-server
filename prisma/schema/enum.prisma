@@ -1,3 +1,4 @@
+//? user related enum 
 enum UserRole {
     PATIENT
     DOCTOR
@@ -13,4 +14,18 @@ enum UserStatus {
 enum Gender {
     MALE
     FEMALE
+}
+
+//? Appointment Related Enum
+
+enum AppointmentStatus {
+    SCHEDULED
+    IN_PROGRESS
+    COMPLETED
+    CANCEL
+}
+
+enum PaymentStatus {
+    PAID
+    UNPAID
 }
