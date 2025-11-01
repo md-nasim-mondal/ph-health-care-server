@@ -1,5 +1,5 @@
 import httpStatus from "http-status";
-import type { Prisma } from "@prisma/client";
+import { UserStatus, type Doctor, type Prisma } from "@prisma/client";
 import { paginationHelper, type IOptions } from "../../helper/paginationHelper";
 import { doctorSearchableFields } from "./doctor.constant";
 import { prisma } from "../../shared/prisma";
@@ -143,6 +143,68 @@ const updateIntoDB = async (
   });
 };
 
+const getByIdFromDB = async (id: string): Promise<Doctor | null> => {
+  const result = await prisma.doctor.findUnique({
+    where: {
+      id,
+      isDeleted: false,
+    },
+    include: {
+      doctorSpecialties: {
+        include: {
+          specialties: true,
+        },
+      },
+      doctorSchedules: {
+        include: {
+          schedule: true,
+        },
+      },
+    },
+  });
+  return result;
+};
+
+const deleteFromDB = async (id: string): Promise<Doctor> => {
+  return await prisma.$transaction(async (transactionClient) => {
+    const deleteDoctor = await transactionClient.doctor.delete({
+      where: {
+        id,
+      },
+    });
+
+    await transactionClient.user.delete({
+      where: {
+        email: deleteDoctor.email,
+      },
+    });
+
+    return deleteDoctor;
+  });
+};
+
+const softDelete = async (id: string): Promise<Doctor> => {
+  return await prisma.$transaction(async (transactionClient) => {
+    const deleteDoctor = await transactionClient.doctor.update({
+      where: { id },
+      data: {
+        isDeleted: true,
+      },
+    });
+
+    await transactionClient.user.update({
+      where: {
+        email: deleteDoctor.email,
+      },
+      data: {
+        status: UserStatus.DELETED,
+      },
+    });
+
+    return deleteDoctor;
+  });
+};
+
 const getAISuggestions = async (payload: { symptoms: string }) => {
   if (!(payload && payload.symptoms)) {
     throw new ApiError(httpStatus.BAD_REQUEST, "Symptoms is required!");
@@ -189,5 +251,9 @@ const getAISuggestions = async (payload: { symptoms: string }) => {
 export const DoctorService = {
   getAllFromDB,
   updateIntoDB,
+  getByIdFromDB,
+  deleteFromDB,
+  softDelete,
+
   getAISuggestions,
 };
