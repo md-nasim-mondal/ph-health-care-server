@@ -17,4 +17,10 @@ router.post(
   AppointmentController.createAppointment
 );
 
+router.post(
+  "/status/:id",
+  auth(UserRole.PATIENT, UserRole.DOCTOR),
+  AppointmentController.updateAppointmentStatus
+);
+
 export const appointmentRoutes = router;
