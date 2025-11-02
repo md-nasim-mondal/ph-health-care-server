@@ -6,6 +6,7 @@ import { IJWTPayload } from "../../types/common";
 import httpStatus from "http-status";
 import pick from "../../helper/pick";
 import { scheduleFilterableFields } from "./doctorSchedule.constant";
+import type { IOptions } from "../../helper/paginationHelper";
 
 const insertIntoDB = catchAsync(
   async (req: Request & { user?: IJWTPayload }, res: Response) => {
@@ -32,7 +33,7 @@ const getMySchedule = catchAsync(
     const user = req.user;
     const result = await DoctorScheduleService.getMySchedule(
       filters,
-      options,
+      options as IOptions,
       user as IJWTPayload
     );
 
@@ -66,7 +67,7 @@ const deleteFromDB = catchAsync(
 const getAllFromDB = catchAsync(async (req: Request, res: Response) => {
   const filters = pick(req.query, scheduleFilterableFields);
   const options = pick(req.query, ["limit", "page", "sortBy", "sortOrder"]);
-  const result = await DoctorScheduleService.getAllFromDB(filters, options);
+  const result = await DoctorScheduleService.getAllFromDB(filters, options as IOptions);
   sendResponse(res, {
     statusCode: httpStatus.OK,
     success: true,
