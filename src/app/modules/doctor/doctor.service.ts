@@ -205,47 +205,95 @@ const softDelete = async (id: string): Promise<Doctor> => {
   });
 };
 
-const getAISuggestions = async (payload: { symptoms: string }) => {
-  if (!(payload && payload.symptoms)) {
-    throw new ApiError(httpStatus.BAD_REQUEST, "Symptoms is required!");
-  }
+export const getAISuggestions = async (payload: { symptoms: string }) => {
+  try {
+    // 🔹 Validate input
+    if (!payload?.symptoms) {
+      throw new ApiError(httpStatus.BAD_REQUEST, "Symptoms is required!");
+    }
 
-  const doctors = await prisma.doctor.findMany({
-    where: {
-      isDeleted: false,
-    },
-    include: {
-      doctorSpecialties: {
-        include: {
-          specialties: true,
+    // 🔹 Get all available doctors with specialties
+    const doctors = await prisma.doctor.findMany({
+      where: {
+        isDeleted: false,
+      },
+      include: {
+        doctorSpecialties: {
+          include: {
+            specialties: true,
+          },
         },
       },
-    },
-  });
+    });
 
-  const prompt = `You are a medical assistant AI Based on the patient's symptoms, suggest the top 3 most suitable doctors. Each doctor has specialties and years of experience. Only suggest doctors who are relevant to the given symptoms.
-  Symptoms: ${payload.symptoms}
-  Here is the doctor list (in JSON):
-  ${JSON.stringify(doctors, null, 2)}
-  Return your response in JSON format with full individual doctor data.`;
+    // 🔹 Prepare AI prompt
+    const prompt = `
+You are a medical assistant AI.
+Based on the patient's symptoms, suggest the top 3 most suitable doctors.
 
-  const completion = await openai.chat.completions.create({
-    model: "z-ai/glm-4.5-air:free",
-    messages: [
-      {
-        role: "system",
-        content:
-          "You are a helpful AI medical assistant that provides doctor suggestions.",
-      },
-      {
-        role: "user",
-        content: prompt,
-      },
-    ],
-  });
+Symptoms: ${payload.symptoms}
 
-  const result = await extractJsonFromMessage(completion.choices[0].message);
-  return result;
+Here is the doctor list (JSON):
+${JSON.stringify(doctors, null, 2)}
+
+⚠️ Return ONLY a valid JSON array — no explanations or extra text.
+Each doctor object should include: id, name, specialties, and experience.
+`;
+
+    // 🔹 Call AI model
+    const completion = await openai.chat.completions.create({
+      model: "z-ai/glm-4.5-air:free",
+      messages: [
+        {
+          role: "system",
+          content:
+            "You are a helpful AI medical assistant that provides JSON-only doctor suggestions.",
+        },
+        {
+          role: "user",
+          content: prompt,
+        },
+      ],
+    });
+
+    const aiMessage = completion?.choices?.[0]?.message;
+    if (!aiMessage) {
+      throw new ApiError(
+        httpStatus.INTERNAL_SERVER_ERROR,
+        "AI response missing!"
+      );
+    }
+
+    // 🔹 Extract JSON safely
+    const result = extractJsonFromMessage(aiMessage);
+
+    // 🔹 If no valid JSON found, fallback response
+    if (!Array.isArray(result) || result.length === 0) {
+      return {
+        success: true,
+        message:
+          "AI could not generate a valid structured response. Please try again later.",
+        data: [],
+      };
+    }
+
+    // ✅ Success
+    return {
+      success: true,
+      message: "AI suggestions retrieved successfully.",
+      data: result,
+    };
+  } catch (error: any) {
+    console.error("💥 getAISuggestions Error:", error.message);
+
+    return {
+      success: false,
+      message:
+        error?.message ||
+        "Failed to get AI suggestions due to unexpected issue.",
+      error: error || {},
+    };
+  }
 };
 
 export const DoctorService = {

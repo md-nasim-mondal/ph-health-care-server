@@ -26,4 +26,4 @@ router.delete(
   AdminController.softDeleteFromDB
 );
 
-export const AdminRoutes = router;
+export const adminRoutes = router;

@@ -1,29 +1,44 @@
 export const extractJsonFromMessage = (message: any) => {
   try {
-    const content = message?.content || "";
+    const content = message?.content?.trim() || "";
 
-    // 1. Try to extract JSON code block (```json ... ```)
+    // Debug log to see what AI actually returned
+    // console.log("🔍 AI Raw Response:", content);
+
+    // 1️⃣ Try to extract JSON inside ```json ... ```
     const jsonBlockMatch = content.match(/```json([\s\S]*?)```/);
     if (jsonBlockMatch) {
       const jsonText = jsonBlockMatch[1].trim();
       return JSON.parse(jsonText);
     }
 
-    // 2. If no code block, try to directly parse JSON if response is plain JSON
-    if (content.trim().startsWith("[") || content.trim().startsWith("{")) {
+    // 2️⃣ If starts directly with JSON
+    if (content.startsWith("{") || content.startsWith("[")) {
       return JSON.parse(content);
     }
 
-    // 3. Try to find the first JSON-like substring (fallback)
+    // 3️⃣ Try to find JSON-like substring
     const jsonFallbackMatch = content.match(/(\[[\s\S]*\]|\{[\s\S]*\})/);
     if (jsonFallbackMatch) {
-      return JSON.parse(jsonFallbackMatch[1]);
+      const jsonCandidate = jsonFallbackMatch[1];
+
+      // Try to fix missing closing brackets
+      let fixedJson = jsonCandidate;
+      if ((fixedJson.match(/\{/g) || []).length !== (fixedJson.match(/\}/g) || []).length) {
+        fixedJson += "}";
+      }
+      if ((fixedJson.match(/\[/g) || []).length !== (fixedJson.match(/\]/g) || []).length) {
+        fixedJson += "]";
+      }
+
+      return JSON.parse(fixedJson);
     }
 
-    // 4. If still no valid JSON found
+    // 4️⃣ No JSON found
+    console.warn("⚠️ No valid JSON found in response");
     return [];
-  } catch (error) {
-    console.error("Error parsing AI response:", error);
+  } catch (error: any) {
+    console.error("❌ Error parsing AI response:", error.message);
     return [];
   }
 };
