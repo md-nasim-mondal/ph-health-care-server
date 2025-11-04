@@ -213,5 +213,3 @@ export const DoctorScheduleService = {
   getMySchedule,
   deleteFromDB,
 };
-
-// Just Add a comment
