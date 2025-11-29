@@ -6,6 +6,6 @@ const createDoctorScheduleValidationSchema = z.object({
   }),
 });
 
-export const DoctorScheduleValidationSchema = {
+export const DoctorScheduleValidation = {
   createDoctorScheduleValidationSchema,
 };

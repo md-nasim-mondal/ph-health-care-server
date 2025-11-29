@@ -11,6 +11,11 @@ import { AppointmentService } from "./app/modules/appointment/appointment.servic
 
 const app: Application = express();
 
+//parser
+app.use(express.json());
+app.use(cookieParser());
+app.use(express.urlencoded({ extended: true }));
+
 app.post(
   "/webhook",
   express.raw({ type: "application/json" }),
@@ -23,11 +28,6 @@ app.use(
     credentials: true,
   })
 );
-
-//parser
-app.use(express.json());
-app.use(cookieParser());
-app.use(express.urlencoded({ extended: true }));
 
 cron.schedule("* * * * *", () => {
   try {
@@ -42,8 +42,8 @@ app.use("/api/v1", router);
 
 app.get("/", (req: Request, res: Response) => {
   res.send({
-    message: "Server is running..",
-    environment: config.node_env,
+    message: "PH Health Care Server is running..",
+    environment: config.env,
     uptime: process.uptime().toFixed(2) + " sec",
     timeStamp: new Date().toISOString(),
   });

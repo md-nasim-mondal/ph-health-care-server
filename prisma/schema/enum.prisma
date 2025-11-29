@@ -1,14 +1,16 @@
 //? user related enum 
 enum UserRole {
+    SUPER_ADMIN
+    ADMIN
     PATIENT
     DOCTOR
-    ADMIN
 }
 
 enum UserStatus {
     ACTIVE
     INACTIVE
     DELETED
+    BLOCKED
 }
 
 enum Gender {
