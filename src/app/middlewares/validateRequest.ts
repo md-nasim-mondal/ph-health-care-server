@@ -8,7 +8,7 @@ const validateRequest =
       await schema.parseAsync({
         body: req.body,
       });
-      return next;
+      return next();
     } catch (err) {
       next(err);
     }

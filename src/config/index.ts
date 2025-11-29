@@ -4,7 +4,7 @@ import path from "path";
 dotenv.config({ path: path.join(process.cwd(), ".env") });
 
 export default {
-  node_env: process.env.NODE_ENV,
+  env: process.env.NODE_ENV,
   port: process.env.PORT,
   database_url: process.env.DATABASE_URL,
   cloudinary: {
@@ -30,5 +30,14 @@ export default {
   reset_pass_link: process.env.RESET_PASS_LINK,
   bcrypt: {
     salt_round: process.env.SALT_ROUND,
+  },
+  ssl: {
+    storeId: process.env.STORE_ID,
+    storePass: process.env.STORE_PASS,
+    successUrl: process.env.SUCCESS_URL,
+    cancelUrl: process.env.CANCEL_URL,
+    failUrl: process.env.FAIL_URL,
+    sslPaymentApi: process.env.SSL_PAYMENT_API,
+    sslValidationApi: process.env.SSL_VALIDATION_API,
   },
 };

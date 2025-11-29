@@ -2,10 +2,10 @@ import { Request, RequestHandler, Response } from "express";
 import { AdminService } from "./admin.service";
 import { adminFilterableFields } from "./admin.constant";
 import httpStatus from "http-status";
-import catchAsync from "../../shared/catchAsync";
-import sendResponse from "../../shared/sendResponse";
-import pick from "../../helper/pick";
-import type { IOptions } from "../../helper/paginationHelper";
+import catchAsync from "../../../shared/catchAsync";
+import sendResponse from "../../../shared/sendResponse";
+import pick from "../../../shared/pick";
+import type { IOptions } from "../../../helpers/paginationHelper";
 
 const getAllFromDB: RequestHandler = catchAsync(
   async (req: Request, res: Response) => {

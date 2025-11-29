@@ -1,32 +1,43 @@
-import express from "express";
-import { AppointmentController } from "./appointment.controller";
-import auth from "../../middlewares/auth";
-import { UserRole } from "@prisma/client";
+import express from 'express'
+import { AppointmentController } from './appointment.controller';
+import auth from '../../middlewares/auth';
+import { UserRole } from '@prisma/client';
+import validateRequest from '../../middlewares/validateRequest';
+import { AppointmentValidation } from './appointment.validation';
 
 const router = express.Router();
 
+/**
+ * ENDPOINT: /appointment/
+ * 
+ * Get all appointment with filtering
+ * Only accessible for Admin & Super Admin
+ */
 router.get(
     '/',
-    auth(UserRole.ADMIN),
+    auth(UserRole.SUPER_ADMIN, UserRole.ADMIN),
     AppointmentController.getAllFromDB
 );
 
 router.get(
-  "/my-appointments",
-  auth(UserRole.PATIENT),
-  AppointmentController.getMyAppointment
-);
+    '/my-appointment',
+    auth(UserRole.PATIENT, UserRole.DOCTOR),
+    AppointmentController.getMyAppointment
+)
 
 router.post(
-  "/",
-  auth(UserRole.PATIENT, UserRole.DOCTOR),
-  AppointmentController.createAppointment
+    '/',
+    auth(UserRole.PATIENT),
+    validateRequest(AppointmentValidation.createAppointment),
+    AppointmentController.createAppointment
 );
 
-router.post(
-  "/status/:id",
-  auth(UserRole.PATIENT, UserRole.DOCTOR),
-  AppointmentController.updateAppointmentStatus
+router.patch(
+    '/status/:id',
+    auth(UserRole.SUPER_ADMIN, UserRole.ADMIN, UserRole.DOCTOR),
+    AppointmentController.changeAppointmentStatus
 );
 
-export const appointmentRoutes = router;
+
+
+export const AppointmentRoutes = router;

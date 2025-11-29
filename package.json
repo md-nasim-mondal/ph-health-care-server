@@ -2,7 +2,7 @@
   "name": "ph-health-care-starter",
   "version": "1.0.0",
   "main": "server.js",
-  "author": "shafayat",
+  "author": "nasim",
   "license": "MIT",
   "prisma": {
     "schema": "./prisma/schema"
@@ -12,6 +12,7 @@
   },
   "dependencies": {
     "@prisma/client": "^6.18.0",
+    "axios": "^1.13.2",
     "bcryptjs": "^3.0.2",
     "cloudinary": "^2.8.0",
     "cookie-parser": "^1.4.7",
@@ -19,6 +20,7 @@
     "date-fns": "^4.1.0",
     "dotenv": "^17.2.3",
     "express": "^5.1.0",
+    "express-rate-limit": "^8.2.1",
     "http-status": "^2.1.0",
     "jsonwebtoken": "^9.0.2",
     "multer": "^2.0.2",
